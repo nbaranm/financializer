@@ -1,9 +1,9 @@
 // ==================== USER & AUTH ====================
-export interface User {
+export interface Profile {
   id: string;
   email: string;
   full_name: string | null;
-  avatar_url: string | null;
+  company_name: string | null;
   plan: 'free' | 'pro' | 'studio';
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
@@ -12,85 +12,57 @@ export interface User {
 }
 
 // ==================== PROJECTION ====================
-export type BusinessModel =
-  | 'premium_game'
-  | 'free_to_play'
-  | 'subscription'
-  | 'ad_supported'
-  | 'hybrid'
-  | 'saas'
-  | 'marketplace';
-
-export type ProjectionStatus = 'draft' | 'active' | 'archived';
+export type TemplateType = 'indie_game' | 'mobile_game' | 'saas' | 'agency';
+export type ProjectionStatus = 'active' | 'archived';
 
 export interface Projection {
   id: string;
   user_id: string;
   name: string;
-  business_model: BusinessModel;
-  status: ProjectionStatus;
-  months: number; // projeksiyon süresi (ay)
-  start_date: string;
-  currency: string;
+  template: TemplateType;
+  // Girdi parametreleri
+  team_size: number;
+  monthly_burn: number;
+  launch_month: number;
+  expected_revenue: number;
+  growth_rate: number;
   initial_investment: number;
-  monthly_burn_rate: number;
+  // Ek parametreler
+  custom_params: Record<string, unknown>;
+  // Hesaplanmış projeksiyon verisi
+  projection_data: MonthData[];
+  // Meta
+  projection_months: number;
+  currency: string;
+  status: ProjectionStatus;
   created_at: string;
   updated_at: string;
 }
 
-export interface MonthlyProjection {
-  id: string;
-  projection_id: string;
-  month: number; // 1-indexed
-  date: string;
+export interface MonthData {
+  month: number;
   revenue: number;
-  expenses: number;
-  net_income: number;
-  cumulative_revenue: number;
-  cumulative_expenses: number;
-  cash_balance: number;
-  users: number;
-  paying_users: number;
-  arpu: number; // Average Revenue Per User
-  churn_rate: number;
-  created_at: string;
+  expense: number;
+  net: number;
+  cumulative_net: number;
+  runway_months: number | null;
+  revenue_breakdown: Record<string, number>;
+  expense_breakdown: Record<string, number>;
 }
 
 // ==================== ACTUALS (PRO+) ====================
-export interface MonthlyActual {
+export interface Actual {
   id: string;
   projection_id: string;
-  month: number;
-  date: string;
-  revenue: number;
-  expenses: number;
-  users: number;
-  paying_users: number;
+  user_id: string;
+  month_number: number;
+  revenue_total: number;
+  revenue_breakdown: Record<string, number>;
+  expense_total: number;
+  expense_breakdown: Record<string, number>;
   notes: string | null;
   created_at: string;
   updated_at: string;
-}
-
-// ==================== WIZARD ====================
-export interface WizardFormData {
-  name: string;
-  business_model: BusinessModel;
-  months: number;
-  start_date: string;
-  currency: string;
-  initial_investment: number;
-  monthly_burn_rate: number;
-  expected_launch_month: number;
-  // Revenue assumptions
-  initial_users: number;
-  monthly_growth_rate: number; // percentage
-  conversion_rate: number; // percentage (for F2P/freemium)
-  price_per_unit: number;
-  // Expense breakdown
-  team_size: number;
-  avg_salary: number;
-  infrastructure_cost: number;
-  marketing_budget: number;
 }
 
 // ==================== PLANS ====================
