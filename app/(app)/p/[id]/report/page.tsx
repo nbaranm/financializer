@@ -174,6 +174,86 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           </div>
         </section>
 
+        {/* Assumptions */}
+        <section>
+          <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Varsayimlar</h3>
+          <ul className="mt-4 space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 text-zinc-400">&bull;</span>
+              Takim buyuklugu ({projection.team_size} kisi) projeksiyon suresi boyunca sabit kalacaktir.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 text-zinc-400">&bull;</span>
+              Aylik baslangic gideri {formatCurrency(projection.monthly_burn)} olup, enflasyona bagli olarak aylik %0.5 artis ongoru lmektedir.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 text-zinc-400">&bull;</span>
+              Urun lansmani {projection.launch_month}. ayda gerceklesecektir.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 text-zinc-400">&bull;</span>
+              Beklenen aylik gelir {formatCurrency(projection.expected_revenue)} ile %{projection.growth_rate} buyume orani uygulanmaktadir.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 text-zinc-400">&bull;</span>
+              Baslangic yatirimi olarak {formatCurrency(projection.initial_investment)} kullanilmaktadir.
+            </li>
+          </ul>
+        </section>
+
+        {/* Risk Analysis */}
+        <section>
+          <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Risk Analizi</h3>
+          <div className="mt-4 space-y-3">
+            {[
+              {
+                level: kpis.financialHealthScore < 40 ? 'high' : kpis.financialHealthScore < 60 ? 'medium' : 'low',
+                title: 'Finansal Saglik',
+                desc: kpis.financialHealthScore >= 60
+                  ? 'Projeksiyon genel olarak sagliklI gorunmektedir.'
+                  : kpis.financialHealthScore >= 40
+                    ? 'Projeksiyon orta duzey risk tasimaktadir. Gelir buyumesi yakindan takip edilmelidir.'
+                    : 'Projeksiyon yuksek risk tasimaktadir. Gider optimizasyonu veya ek yatirim gerekebilir.',
+              },
+              {
+                level: !kpis.breakEvenMonth ? 'high' : kpis.breakEvenMonth > 18 ? 'medium' : 'low',
+                title: 'Break-Even Riski',
+                desc: kpis.breakEvenMonth
+                  ? `Break-even noktasina ${kpis.breakEvenMonth}. ayda ulasilmasi beklenmektedir.`
+                  : 'Projeksiyon suresi icinde break-even noktasina ulasilamamaktadir.',
+              },
+              {
+                level: kpis.peakBurn < -100000 ? 'high' : kpis.peakBurn < 0 ? 'medium' : 'low',
+                title: 'Nakit Akisi',
+                desc: `En dusuk kumulatif nokta ${formatCurrency(kpis.peakBurn)} seviyesindedir.${
+                  kpis.peakBurn < 0 ? ' Yeterli nakit rezervi bulundurulmalIdir.' : ''
+                }`,
+              },
+            ].map((risk) => (
+              <div key={risk.title} className={`rounded-lg border p-4 ${
+                risk.level === 'high' ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20' :
+                risk.level === 'medium' ? 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20' :
+                'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-block h-2 w-2 rounded-full ${
+                    risk.level === 'high' ? 'bg-red-500' : risk.level === 'medium' ? 'bg-amber-500' : 'bg-green-500'
+                  }`} />
+                  <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{risk.title}</span>
+                  <span className={`ml-auto rounded-full px-2 py-0.5 text-xs font-medium ${
+                    risk.level === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300' :
+                    risk.level === 'medium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300' :
+                    'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
+                  }`}>
+                    {risk.level === 'high' ? 'Yuksek' : risk.level === 'medium' ? 'Orta' : 'Dusuk'}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{risk.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="border-t border-zinc-200 pt-4 text-center text-xs text-zinc-400 dark:border-zinc-800">
           StudioCast tarafindan olusturuldu &middot; {new Date().toLocaleDateString('tr-TR')}
         </div>

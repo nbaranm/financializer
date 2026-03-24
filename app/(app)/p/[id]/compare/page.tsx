@@ -162,6 +162,56 @@ export default function ComparePage({ params }: { params: Promise<{ id: string }
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Color-coded deviation table */}
+      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800">
+        <div className="border-b border-zinc-200 bg-zinc-50 px-5 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+          <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Sapma Analizi</h3>
+          <p className="text-xs text-zinc-500">Yesil = hedefin ustunde, Kirmizi = altinda</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-200 dark:border-zinc-800">
+                <th className="px-4 py-2.5 text-left font-medium text-zinc-600">Ay</th>
+                <th className="px-4 py-2.5 text-right font-medium text-zinc-600">Proj. Gelir</th>
+                <th className="px-4 py-2.5 text-right font-medium text-zinc-600">Gercek Gelir</th>
+                <th className="px-4 py-2.5 text-right font-medium text-zinc-600">Gelir %</th>
+                <th className="px-4 py-2.5 text-right font-medium text-zinc-600">Proj. Gider</th>
+                <th className="px-4 py-2.5 text-right font-medium text-zinc-600">Gercek Gider</th>
+                <th className="px-4 py-2.5 text-right font-medium text-zinc-600">Gider %</th>
+              </tr>
+            </thead>
+            <tbody>
+              {actuals.map((a) => {
+                const projected = projection.projection_data[a.month_number - 1];
+                const projRev = projected?.revenue || 0;
+                const projExp = projected?.expense || 0;
+                const revDiff = projRev > 0 ? ((a.revenue_total - projRev) / projRev) * 100 : 0;
+                const expDiff = projExp > 0 ? ((a.expense_total - projExp) / projExp) * 100 : 0;
+                const revPositive = revDiff >= 0;
+                const expPositive = expDiff <= 0; // less expense is good
+
+                return (
+                  <tr key={a.id} className="border-b border-zinc-100 dark:border-zinc-800">
+                    <td className="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">Ay {a.month_number}</td>
+                    <td className="px-4 py-2 text-right text-zinc-500">{formatCurrency(projRev)}</td>
+                    <td className="px-4 py-2 text-right text-zinc-900 dark:text-zinc-100">{formatCurrency(a.revenue_total)}</td>
+                    <td className={`px-4 py-2 text-right font-semibold ${revPositive ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'}`}>
+                      {revDiff >= 0 ? '+' : ''}{revDiff.toFixed(1)}%
+                    </td>
+                    <td className="px-4 py-2 text-right text-zinc-500">{formatCurrency(projExp)}</td>
+                    <td className="px-4 py-2 text-right text-zinc-900 dark:text-zinc-100">{formatCurrency(a.expense_total)}</td>
+                    <td className={`px-4 py-2 text-right font-semibold ${expPositive ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'}`}>
+                      {expDiff >= 0 ? '+' : ''}{expDiff.toFixed(1)}%
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
