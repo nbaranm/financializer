@@ -59,10 +59,10 @@ export default function HomePage() {
             Ucretsiz Basla &rarr;
           </Link>
           <Link
-            href="#features"
+            href="/demo"
             className="rounded-lg border border-zinc-300 px-8 py-3.5 text-sm font-medium text-zinc-700 hover:bg-white dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors"
           >
-            Nasil Calisir?
+            Demo&apos;yu Dene &rarr;
           </Link>
         </div>
 
